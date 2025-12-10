@@ -1,4 +1,7 @@
 # SteamLink Module for VRCFT
+
+> **Note:** This is a fork of [danwillm/VRCFT-SteamLink](https://github.com/danwillm/VRCFT-SteamLink) with added Linux support. All credit for the original implementation goes to [danwillm](https://github.com/danwillm).
+
 This repository contains an example of how to use the experimental OSC data from the Steam Link SteamVR driver for face and eye tracking with VRCFT.
 
 The module has support for eye and face tracking.

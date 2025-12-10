@@ -1,21 +1,21 @@
 #ifndef _MINIOSC_H
 #define _MINIOSC_H
 
-/* 
+/*
  miniosc.h - a small single-file header OSC library (including sockets) for C.
   It only supports a subset of the OSC protocol. #bundle, the basic types:
   i, f, s, and b and extended types I, F, N, and T, and t, c and r. Where c and
   r are aliased to i.
-  
+
  Tested 2022-02-24 working with TouchOSC input and output (well except for the
  extended functionality).  While basic bounds checking is happening it is
  likely that there are flaws with this.  This library has not yet been
  fuzzed.
 
  Tested working on Linux and Windows 2022-02-24
-  
+
  Copyright 2022 <>< cnlohr - you may use this file freely.
- 
+
  It may be licensed under the MIT/x11, NewBSD, CC0 or Public Domain where applicable.
 */
 
@@ -55,7 +55,7 @@ miniosc * minioscInit( unsigned short portin, unsigned short portout, const char
 //  'i', 'c' and 'r': send an int, include an int in your varargs.
 //  'f': send a float, include a float (or rather auto-promoted double) to your varargs.
 //  's': send a string, include a char * in your varargs.
-//  'b': send a blob, include an int and then a char * in your varargs. 
+//  'b': send a blob, include an int and then a char * in your varargs.
 //  'T', 'I', 'F' and 'N' have no parameters.
 // You must prefix your address with '/' and you must prefix type with ','
 int minioscSend( miniosc * osc, const char * address, const char * type, ... );
@@ -149,13 +149,13 @@ miniosc * minioscInit( unsigned short portin, unsigned short portout, const char
 #endif
 
 	int sock = (int)socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
-	
+
 	if( sock == -1 )
 	{
 		if( minioscerrorcode ) *minioscerrorcode = MINIOSC_ERROR_SOCKET;
 		return 0;
 	}
-	
+
 	if( portin )
 	{
 		struct sockaddr_in bindaddy;
@@ -170,7 +170,7 @@ miniosc * minioscInit( unsigned short portin, unsigned short portout, const char
 		//int opt = 1;
 		//setsockopt( sock, SOL_SOCKET, SO_REUSEADDR, ( const char * ) &opt, sizeof( opt ) );
 
-		// Bind the socket with the server address 
+		// Bind the socket with the server address
 		if ( bind( sock, ( const struct sockaddr * )&bindaddy, sizeof( bindaddy ) ) < 0 )
 		{
 			closesocket( sock );
@@ -187,20 +187,20 @@ miniosc * minioscInit( unsigned short portin, unsigned short portout, const char
 		peeraddy.sin_port = htons( portout );
 		peeraddy.sin_addr.s_addr = inet_addr( addressout );
 
-		// If you find the OS's buffer is insufficient, we could override 
+		// If you find the OS's buffer is insufficient, we could override
 		// setsockopt( m_sockfd, SOL_SOCKET, SO_RCVBUF, ( const char * ) &n, sizeof( n ) ) ...
 		//
 		// Possible future feature: bind to a specific network device.
 		// setsockopt( m_sockfd, SOL_SOCKET, SO_BINDTODEVICE, &ifr, sizeof( ifr ) ) ...
-		
+
 		if( connect( sock, ( const struct sockaddr * ) &peeraddy, sizeof( peeraddy ) ) < 0 )
 		{
 			if( minioscerrorcode ) *minioscerrorcode = MINIOSC_ERROR_CONNECT;
 			closesocket( sock );
 			return 0;
-		}		
+		}
 	}
-	
+
 
 #ifndef MINIOSCWIN
 	// Tricky: We want to make OSC use telephony QoS / ToS.  This
@@ -233,7 +233,7 @@ static int minioscEncodeInternal( char * buffer, char ** bptr, int mob, const ch
 
 	err = _minioscAppend( buffer, bptr, MINIOSCBUFFER, (int)strlen( type ) + 1, type );
 	if( err ) return err;
-	
+
 	const char * t;
 	char c;
 	for( t = type+1; *t; t++ )
@@ -254,7 +254,7 @@ static int minioscEncodeInternal( char * buffer, char ** bptr, int mob, const ch
 		case 'f':
 		{
 			float f = (float)va_arg( ap, double ); //Quirk: var args in C use doubles not floats because of automatic type promotion.
-			
+
 			// Flip endian of float.
 			uint32_t * fi = (uint32_t*)&f;
 			*fi = htonl( *fi );
@@ -310,7 +310,7 @@ int minioscSend( miniosc * osc, const char * address, const char * type, ... )
 	if ( !osc ) return MINIOSC_ERROR_UNINIT;
 	char buffer[MINIOSCBUFFER];
 	char * bptr = buffer;
-	
+
     va_list args;
     va_start( args, type );
 	int ret = minioscEncodeInternal( buffer, &bptr, MINIOSCBUFFER, address, type, args );
@@ -452,7 +452,7 @@ int minioscPoll( miniosc * osc, int timeoutms, void (*callback)( const char * ad
 		struct pollfd pfd = { 0 };
 		pfd.fd = osc->sock;
 		pfd.events = POLLRDNORM;
-		r = poll( &pfd, 1, timeoutms );		
+		r = poll( &pfd, 1, timeoutms );
 	#endif
 
 	if( r < 0 ) return MINIOSC_ERROR_TRANSPORT;

@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using SLExtTrackingModule;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
+using SLExtTrackingModule;
 using VRCFaceTracking;
-using VRCFaceTracking.Core.Params.Expressions;
-using static VRCFaceTracking.Core.Params.Expressions.UnifiedExpressions;
-using static SLExtTrackingModule.XrFBWeights;
 using VRCFaceTracking.Core.Params.Data;
+using VRCFaceTracking.Core.Params.Expressions;
+using static SLExtTrackingModule.XrFBWeights;
+using static VRCFaceTracking.Core.Params.Expressions.UnifiedExpressions;
 
 namespace SLExtTrackingModule
 {
@@ -74,8 +74,9 @@ namespace SLExtTrackingModule
         private static unsafe void UpdateFaceTracking(ref SLOSCPacket packet)
         {
             ref UnifiedExpressionShape[] shapes = ref UnifiedTracking.Data.Shapes;
-            
-            fixed(float* weights = packet.vWeights) {
+
+            fixed (float* weights = packet.vWeights)
+            {
                 foreach (KeyValuePair<XrFBWeights, List<UnifiedExpressions>> entry in mapDirectXRFBUnifiedExpressions)
                 {
                     int nWeightIndex = (int)entry.Key;
@@ -139,13 +140,13 @@ namespace SLExtTrackingModule
                 {JawSidewaysLeft, new List<UnifiedExpressions>{JawLeft}},
                 {JawSidewaysRight, new List<UnifiedExpressions>{JawRight}},
                 {JawThrust, new List<UnifiedExpressions>{JawForward}},
-                
+
                 {MouthLeft, new List<UnifiedExpressions>{MouthLowerLeft, MouthUpperLeft}},
                 {MouthRight, new List<UnifiedExpressions>{MouthLowerRight, MouthUpperRight}},
-                
+
                 {ChinRaiserT, new List<UnifiedExpressions>{MouthRaiserUpper} },
                 {ChinRaiserB, new List<UnifiedExpressions>{MouthRaiserLower} },
-                
+
                 {DimplerL, new List<UnifiedExpressions>{MouthDimpleLeft} },
                 {DimplerR, new List<UnifiedExpressions>{MouthDimpleRight} },
 
@@ -185,8 +186,8 @@ namespace SLExtTrackingModule
                 {NoseWrinklerL, new List<UnifiedExpressions>{NoseSneerLeft} },
                 {NoseWrinklerR, new List<UnifiedExpressions>{NoseSneerRight} },
 
-                {FBTongueOut, new List<UnifiedExpressions>{ TongueOut } },
-                {FBTongueTipAlveolar, new List<UnifiedExpressions>{ TongueCurlUp } }
+                {FBToungeOut, new List<UnifiedExpressions>{ TongueOut } },
+                {FBToungeTipAlveolar, new List<UnifiedExpressions>{ TongueCurlUp } }
             };
     }
 }

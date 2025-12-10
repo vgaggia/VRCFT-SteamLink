@@ -110,3 +110,92 @@ OpenXR Face Tracking:
 ```
 
 Addresses may be sent in different bundles. How different addresses are packaged are noted by `---BUNDLE` above.
+
+## Building the Module
+
+This module supports both Windows and Linux platforms.
+
+### Prerequisites
+
+**Windows:**
+- Visual Studio 2019 or 2022 with C++ and .NET 7.0 support
+- .NET 7.0 SDK
+
+**Linux:**
+- GCC or Clang compiler with C++17 support
+- CMake 3.15 or higher
+- .NET 7.0 SDK
+- Build essentials: `sudo apt install build-essential cmake`
+
+### Build Instructions
+
+#### Linux
+
+1. Clone the repository with submodules:
+   ```bash
+   git clone --recursive https://github.com/danwillm/VRCFT-SteamLink.git
+   cd VRCFT-SteamLink
+   ```
+
+2. Run the build script:
+   ```bash
+   chmod +x build-linux.sh
+   ./build-linux.sh Release
+   ```
+
+3. The module will be automatically installed to:
+   ```
+   ~/.local/share/VRCFaceTracking/CustomLibs/b146eda9-be48-4016-ab63-680a694064bd
+   ```
+
+#### Windows
+
+1. Clone the repository with submodules:
+   ```powershell
+   git clone --recursive https://github.com/danwillm/VRCFT-SteamLink.git
+   cd VRCFT-SteamLink
+   ```
+
+2. Run the build script (PowerShell):
+   ```powershell
+   .\build-windows.ps1 -BuildType Release
+   ```
+
+   Or use the batch file:
+   ```cmd
+   build-windows.bat Release
+   ```
+
+3. The module will be automatically installed to:
+   ```
+   %AppData%\VRCFaceTracking\CustomLibs\b146eda9-be48-4016-ab63-680a694064bd
+   ```
+
+### Manual Build
+
+If you prefer to build manually:
+
+1. **Build the native C++ library:**
+   ```bash
+   cd SLVRCFT/SLOSCParser
+   mkdir build && cd build
+   cmake .. -DCMAKE_BUILD_TYPE=Release
+   cmake --build . --config Release
+   ```
+
+2. **Copy the native library:**
+   - Linux: Copy `lib/libSLOSCParser.so` to `SLVRCFT/SLExtTrackingModule/bin/Release/net7.0/`
+   - Windows: The Visual Studio build handles this automatically
+
+3. **Build the C# module:**
+   ```bash
+   cd SLVRCFT
+   dotnet build SLExtTrackingModule/SLExtTrackingModule.csproj --configuration Release
+   ```
+
+### Development Notes
+
+- The C++ native library (`SLOSCParser`) handles OSC message parsing
+- The C# module (`SLExtTrackingModule`) integrates with VRCFaceTracking
+- On Linux, the native library is built with CMake instead of MSBuild
+- Socket library differences are handled automatically (ws2_32 on Windows, pthreads on Linux)

@@ -1,0 +1,63 @@
+# EditorConfig - consistent coding styles across editors
+# https://editorconfig.org
+
+root = true
+
+# Default settings for all files
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# C# files
+[*.cs]
+indent_size = 4
+dotnet_sort_system_directives_first = true
+
+# C# formatting
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+
+# C++ files
+[*.{cpp,h,hpp}]
+indent_size = 4
+
+# CMake files
+[CMakeLists.txt]
+indent_size = 4
+
+[*.cmake]
+indent_size = 4
+
+# Shell scripts (must be LF)
+[*.sh]
+end_of_line = lf
+
+# Windows batch/PowerShell (must be CRLF)
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yaml,yml}]
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# XML/csproj files
+[*.{xml,csproj,vcxproj}]
+indent_size = 2

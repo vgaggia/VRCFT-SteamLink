@@ -11,6 +11,13 @@
 #define MINIOSC_IMPLEMENTATION
 #include "miniosc.h"
 
+// Cross-platform export macro
+#if defined(_WIN32) || defined(_WIN64)
+    #define EXPORT_API extern "C" __declspec(dllexport)
+#else
+    #define EXPORT_API extern "C" __attribute__((visibility("default")))
+#endif
+
 #define SLOSC_CHECK(x) \
 do { \
 	SLOSCResult result = x; \
@@ -83,13 +90,13 @@ static const std::map<std::string, EXrFBWeights> mapXrFBWeightStrings{
 	{"/sl/xrfb/facew/UpperLidRaiserR", UpperLidRaiserR },
 	{"/sl/xrfb/facew/UpperLipRaiserL", UpperLipRaiserL },
 	{"/sl/xrfb/facew/UpperLipRaiserR", UpperLipRaiserR },
-	{"/sl/xrfb/facew/TongueTipInterdental", TongueTipInterdental },
-	{"/sl/xrfb/facew/TongueTipAlveolar", TongueTipAlveolar },
+	{"/sl/xrfb/facew/TongueTipInterdental", ToungeTipInterdental },
+	{"/sl/xrfb/facew/TongueTipAlveolar", ToungeTipAlveolar },
 	{"/sl/xrfb/facew/FrontDorsalPalate", FrontDorsalPalate },
 	{"/sl/xrfb/facew/MidDorsalPalate", MidDorsalPalate },
 	{"/sl/xrfb/facew/BackDorsalVelar", BackDorsalVelar },
-	{"/sl/xrfb/facew/TongueOut", TongueOut },
-	{"/sl/xrfb/facew/TongueRetreat", TongueRetreat },
+	{"/sl/xrfb/facew/TongueOut", ToungeOut },
+	{"/sl/xrfb/facew/TongueRetreat", ToungeRetreat },
 	{}
 };
 
@@ -98,10 +105,9 @@ static miniosc* osc = nullptr;
 bool bHasNewData = false;
 SLOSCPacket nextPacket = {};
 
-extern "C" __declspec(dllexport) int SLOSCInit(const int nInPort, const int nOutPort) {
-#ifdef _DEBUG
+EXPORT_API int SLOSCInit(const int nInPort, const int nOutPort) {
+#if defined(_DEBUG) && defined(_WIN32)
 	AllocConsole();
-
 	freopen("CONOUT$", "w", stdout);
 #endif
 
@@ -127,7 +133,7 @@ void rxcb(const char* cpAddress, const char* sType, const void** ppParmaters) {
 #ifdef _DEBUG
 	if (std::chrono::steady_clock::now() > tpLastNoPacketLog + std::chrono::milliseconds(1000)) {
 		std::cout << "Packets since last log: " << nPacketCount << std::endl;
-		
+
 		tpLastNoPacketLog = std::chrono::steady_clock::now();
 		nPacketCount = 0;
 	}
@@ -155,7 +161,7 @@ void rxcb(const char* cpAddress, const char* sType, const void** ppParmaters) {
 	}
 }
 
-extern "C" __declspec(dllexport) int SLOSCPollNext(SLOSCPacket * outSLOSCPacket) {
+EXPORT_API int SLOSCPollNext(SLOSCPacket * outSLOSCPacket) {
 	int r = minioscPoll(osc, 10, rxcb);
 	if (!bHasNewData) {
 		return SLOSC_ERROR_NO_NEW_PACKET;
@@ -167,7 +173,7 @@ extern "C" __declspec(dllexport) int SLOSCPollNext(SLOSCPacket * outSLOSCPacket)
 	return SLOSC_SUCCESS;
 }
 
-extern "C" __declspec(dllexport) int SLOSCClose() {
+EXPORT_API int SLOSCClose() {
 	minioscClose(osc);
 
 	return SLOSC_SUCCESS;

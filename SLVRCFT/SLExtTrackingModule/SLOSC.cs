@@ -1,4 +1,3 @@
-﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SLExtTrackingModule
 {
@@ -93,13 +93,56 @@ namespace SLExtTrackingModule
 
     internal static class SLOSC
     {
-        [DllImport(_sDLLFilePath, CallingConvention = CallingConvention.Cdecl)]
+        private const string LibraryName = "SLOSCParser";
+
+        static SLOSC()
+        {
+            NativeLibrary.SetDllImportResolver(typeof(SLOSC).Assembly, DllImportResolver);
+        }
+
+        private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+        {
+            if (libraryName == LibraryName)
+            {
+                // Try platform-specific names
+                string[] candidates;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    candidates = new[] { "SLOSCParser.dll", "SLOSCParser" };
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    candidates = new[] { "libSLOSCParser.so", "SLOSCParser.so", "SLOSCParser" };
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    candidates = new[] { "libSLOSCParser.dylib", "SLOSCParser.dylib", "SLOSCParser" };
+                }
+                else
+                {
+                    candidates = new[] { libraryName };
+                }
+
+                foreach (var candidate in candidates)
+                {
+                    if (NativeLibrary.TryLoad(candidate, assembly, searchPath, out IntPtr handle))
+                    {
+                        return handle;
+                    }
+                }
+            }
+
+            // Fall back to default resolution
+            return IntPtr.Zero;
+        }
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private extern static unsafe int SLOSCInit(int nInPort, int nOutPort);
 
-        [DllImport(_sDLLFilePath, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private extern static unsafe int SLOSCPollNext(SLOSCPacket* pPacket);
 
-        [DllImport(_sDLLFilePath, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private extern static unsafe int SLOSCClose();
 
         public static int Init(int nInPort, int nOutPort)
@@ -122,7 +165,5 @@ namespace SLExtTrackingModule
         {
             return SLOSCClose();
         }
-
-        private const string _sDLLFilePath = "SLOSCParser.dll";
     }
 }
